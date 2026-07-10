@@ -20,8 +20,11 @@
 
 ## 安装
 
-### Tampermonkey 脚本
+### Tampermonkey 脚本（推荐）
 
+**快速安装**：[点击安装脚本](https://gist.githubusercontent.com/1710368392/3029c0157b3b3be5561b54796bbb7849/raw/bilibili-user-note.user.js)
+
+或手动安装：
 1. 安装 [Tampermonkey](https://www.tampermonkey.net/) 浏览器扩展
 2. 点击 Tampermonkey 图标 → 添加新脚本
 3. 复制 `tampermonkey/bilibili-user-note.user.js` 的内容并粘贴
@@ -29,10 +32,11 @@
 
 ### Edge 扩展
 
-1. 打开 Edge 浏览器，访问 `edge://extensions/`
-2. 开启「开发人员模式」
-3. 点击「加载解压缩的扩展」
-4. 选择 `edge-extension` 文件夹
+1. 下载本仓库的 `edge-extension` 文件夹
+2. 打开 Edge 浏览器，访问 `edge://extensions/`
+3. 开启「开发人员模式」
+4. 点击「加载解压缩的扩展」
+5. 选择下载的 `edge-extension` 文件夹
 
 ## 使用
 
