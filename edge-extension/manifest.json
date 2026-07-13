@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Bilibili 用户备注助手",
   "version": "1.2.0",
-  "description": "为 Bilibili 用户添加自定义备注，支持多标签和中国风配色",
+  "description": "为 Bilibili 用户添加自定义备注，支持多标签和自定义配色",
   "author": "糖心月",
   "license": "MIT",
   "permissions": [

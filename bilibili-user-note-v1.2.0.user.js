@@ -2,7 +2,7 @@
 // @name         Bilibili 用户备注助手
 // @namespace    http://tampermonkey.net/
 // @version      1.2.0
-// @description  按住 Shift 右键用户名即可添加备注，支持多标签和自定义配色
+// @description  按住 Shift 右键用户名即可添加备注，支持多标签和中国风配色
 // @author       糖心月
 // @copyright    2026, 糖心月 (https://github.com/1710368392)
 // @license      MIT
