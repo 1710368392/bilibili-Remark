@@ -428,16 +428,9 @@
 
     // ==================== 数据层 ====================
     function _loadFromStorage() {
-        let gmNotes = {}, lsNotes = {};
+        let gmNotes = {};
         try { const r = GM_getValue(STORAGE_KEY, ''); if (r) gmNotes = JSON.parse(r); } catch {}
-        try { const r = localStorage.getItem(STORAGE_KEY); if (r) lsNotes = JSON.parse(r); } catch {}
-        const merged = { ...lsNotes, ...gmNotes };
-        if (Object.keys(merged).length > 0) {
-            const s = JSON.stringify(merged);
-            GM_setValue(STORAGE_KEY, s);
-            localStorage.setItem(STORAGE_KEY, s);
-        }
-        return merged;
+        return gmNotes;
     }
 
     function loadNotes() {
@@ -452,7 +445,6 @@
         _notesCache = notes;
         const s = JSON.stringify(notes);
         GM_setValue(STORAGE_KEY, s);
-        localStorage.setItem(STORAGE_KEY, s);
     }
 
     function migrateFromLocalStorage() {
@@ -466,10 +458,22 @@
             }
             const gmRaw = GM_getValue(STORAGE_KEY, '');
             const gm = gmRaw ? JSON.parse(gmRaw) : {};
-            const merged = { ...ls, ...gm };
-            const s = JSON.stringify(merged);
-            GM_setValue(STORAGE_KEY, s);
-            localStorage.setItem(STORAGE_KEY, s);
+            // GM 存储优先，只将 localStorage 中有但 GM 中没有的数据合并
+            // 不覆盖 GM 中已有的数据（包括已删除的）
+            let changed = false;
+            for (const uid of Object.keys(ls)) {
+                if (!(uid in gm)) {
+                    gm[uid] = ls[uid];
+                    changed = true;
+                }
+            }
+            if (changed) {
+                const s = JSON.stringify(gm);
+                GM_setValue(STORAGE_KEY, s);
+                localStorage.setItem(STORAGE_KEY, s);
+            }
+            // 清除 localStorage，统一使用 GM 存储
+            localStorage.removeItem(STORAGE_KEY);
         } catch {}
     }
 
