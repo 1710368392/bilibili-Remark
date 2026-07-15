@@ -23,7 +23,7 @@
 
 ### Tampermonkey 脚本（推荐）
 
-**快速安装**：[点击安装脚本](https://gist.githubusercontent.com/1710368392/3029c0157b3b3be5561b54796bbb7849/raw/bilibili-user-note.user.js)
+**快速安装**：[点击安装脚本](https://gist.githubusercontent.com/1710368392/3029c0157b3b3be5561b54796bbb7849/raw/bilibili-user-note-v1.3.0.user.js)
 
 或手动安装：
 1. 安装 [Tampermonkey](https://www.tampermonkey.net/) 浏览器扩展
