@@ -4,6 +4,7 @@
 // @version      1.3.0
 // @description  按住 Shift 右键用户名即可添加备注，支持多标签和自定义配色
 // @author       糖心月
+// @homepage     https://github.com/1710368392/bilibili-Remark
 // @copyright    2026, 糖心月 (https://github.com/1710368392)
 // @license      MIT
 // @icon         https://raw.githubusercontent.com/1710368392/bilibili---/main/tampermonkey/icon.png
