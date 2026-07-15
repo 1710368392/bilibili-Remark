@@ -7,6 +7,8 @@
 // @copyright    2026, 糖心月 (https://github.com/1710368392)
 // @license      MIT
 // @icon         https://raw.githubusercontent.com/1710368392/bilibili---/main/tampermonkey/icon.png
+// @updateURL    https://gist.githubusercontent.com/1710368392/3029c0157b3b3be5561b54796bbb7849/raw/bilibili-user-note-v1.3.0.user.js
+// @downloadURL  https://gist.githubusercontent.com/1710368392/3029c0157b3b3be5561b54796bbb7849/raw/bilibili-user-note-v1.3.0.user.js
 // @match        https://www.bilibili.com/*
 // @match        https://space.bilibili.com/*
 // @match        https://message.bilibili.com/*
