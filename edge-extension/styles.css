@@ -248,6 +248,11 @@
     min-width: 20px; height: 18px; padding: 0 4px;
     background: #f1f2f3; border: 1px solid #e3e5e7; border-radius: 4px;
     font-size: 11px; font-family: inherit; color: #61666d;
+    transition: all 0.15s;
+}
+.bn-tag-hint kbd.active {
+    background: #00a1d6; border-color: #00a1d6; color: #fff;
+    box-shadow: 0 1px 4px rgba(0,161,214,0.3);
 }
 .bn-tag-input-disabled .bn-tag-input,
 .bn-tag-input-disabled .bn-tag-counter {
@@ -387,11 +392,15 @@
     .bn-tag-input::placeholder { color: #666; }
     .bn-tag-hint { color: #777; }
     .bn-tag-hint kbd { background: #333; border-color: #444; color: #aaa; }
+    .bn-tag-hint kbd.active { background: #00a1d6; border-color: #0091c2; color: #fff; }
     .bn-tag-editing { background: #222226 !important; border-color: #00a1d6; }
     .bn-tag-editing input { color: #e1e1e1; }
     .bn-color-dot { border-color: #333; box-shadow: 0 0 0 1px #444; }
     .bn-color-dot-hint::after { background: #e1e1e1; color: #18191c; }
     .bn-color-popup { background: #2a2a2e; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+    .bn-color-popup input[type="text"] { background: #333; color: #e1e1e1; border-color: #555; }
+    .bn-color-popup input[type="text"]:focus { border-color: #00a1d6; }
+    .bn-color-popup #bn-hex-preview { border-color: #555; }
     .bn-color-title { color: #aaa; }
     .bn-color-item.active { border-color: #e1e1e1; }
     .bn-color-item::after { background: #333; color: #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }

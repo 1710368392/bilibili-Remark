@@ -35,7 +35,13 @@ function showToast(msg, type = 'success') {
     t.setAttribute('aria-live', 'polite');
     const icon = TOAST_ICONS[type] || TOAST_ICONS.info;
     const bg = TOAST_COLORS[type] || TOAST_COLORS.info;
-    t.innerHTML = `<span style="display:flex;align-items:center;gap:6px;">${icon}<span>${msg}</span></span>`;
+    const wrap = document.createElement('span');
+    wrap.style.cssText = 'display:flex;align-items:center;gap:6px;';
+    wrap.innerHTML = icon;
+    const msgSpan = document.createElement('span');
+    msgSpan.textContent = msg;
+    wrap.appendChild(msgSpan);
+    t.appendChild(wrap);
     Object.assign(t.style, {
         position: 'fixed', top: '12px', left: '50%', transform: 'translateX(-50%)',
         background: bg, color: '#fff', padding: '8px 16px',
@@ -55,10 +61,84 @@ function loadNotes() {
     });
 }
 
+function getAllUniqueTags(notes) {
+    const tagMap = new Map();
+    Object.values(notes).forEach(note => {
+        if (note.tags) {
+            note.tags.forEach(tag => {
+                const key = tag.text.toLowerCase() + '|' + (tag.color || '').toLowerCase();
+                if (!tagMap.has(key)) tagMap.set(key, tag);
+            });
+        }
+    });
+    return Array.from(tagMap.values());
+}
+
+let activeFilterTags = new Set();
+
+function renderTagFilter() {
+    loadNotes().then(notes => {
+        const allTags = getAllUniqueTags(notes);
+        const tagFilter = document.getElementById('tag-filter');
+        if (allTags.length === 0) {
+            tagFilter.innerHTML = '<span style="font-size:11px;color:#9499a0;">暂无标签</span>';
+            return;
+        }
+        tagFilter.innerHTML = allTags.map(t => {
+            const key = t.text.toLowerCase() + '|' + (t.color || '').toLowerCase();
+            const isActive = activeFilterTags.has(key);
+            return `<span class="tag-filter-item ${isActive ? 'active' : ''}" data-key="${safeAttr(key)}" data-text="${safeAttr(t.text)}" data-color="${safeAttr(t.color)}" style="background-color:${safeAttr(t.color)}">${escapeHtml(t.text)}</span>`;
+        }).join('');
+
+        tagFilter.querySelectorAll('.tag-filter-item').forEach(el => {
+            const key = el.dataset.key;
+            const text = el.dataset.text;
+            const color = el.dataset.color;
+
+            el.addEventListener('click', () => {
+                if (activeFilterTags.has(key)) {
+                    activeFilterTags.delete(key);
+                } else {
+                    activeFilterTags.add(key);
+                }
+                renderTagFilter();
+                renderList(document.getElementById('search').value.toLowerCase());
+            });
+
+            el.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                if (!confirm(`确定要全盘删除标签「${text}」？\n这会移除所有用户身上的该标签。`)) return;
+                loadNotes().then(allNotes => {
+                    let removedCount = 0;
+                    Object.values(allNotes).forEach(note => {
+                        if (note.tags) {
+                            const before = note.tags.length;
+                            note.tags = note.tags.filter(t => !(t.text.toLowerCase() === text.toLowerCase() && (t.color || '').toLowerCase() === color.toLowerCase()));
+                            removedCount += before - note.tags.length;
+                        }
+                    });
+                    chrome.storage.local.set({ [STORAGE_KEY]: allNotes });
+                    activeFilterTags.delete(key);
+                    renderTagFilter();
+                    renderList(document.getElementById('search').value.toLowerCase());
+                    showToast(`已删除 ${removedCount} 个「${text}」标签`);
+                });
+            });
+        });
+    });
+}
+
 function renderList(kw = '') {
     loadNotes().then(notes => {
         const list = document.getElementById('list');
-        const all = Object.values(notes);
+        let all = Object.values(notes);
+        // 标签筛选
+        if (activeFilterTags.size > 0) {
+            all = all.filter(n => {
+                if (!n.tags || n.tags.length === 0) return false;
+                return n.tags.some(t => activeFilterTags.has(t.text.toLowerCase() + '|' + (t.color || '').toLowerCase()));
+            });
+        }
         // 更新标题计数
         document.getElementById('note-count').textContent = all.length > 0 ? `${all.length} 条` : '';
         const filtered = kw
@@ -93,7 +173,7 @@ function renderList(kw = '') {
                     <div class="uid"><a class="bn-link" href="https://space.bilibili.com/${safeAttr(String(n.uid))}" target="_blank" rel="noopener">UID: ${escapeHtml(String(n.uid))}</a></div>
                 </div>
                 <div class="tags">
-                    ${n.tags?.map(t => `<span class="tag" style="background:${safeAttr(t.color)}">${escapeHtml(t.text)}</span>`).join('') || ''}
+                    ${n.tags?.map(t => `<span class="tag" data-uid="${safeAttr(String(n.uid))}" data-text="${safeAttr(t.text)}" data-color="${safeAttr(t.color)}" style="background:${safeAttr(t.color)}">${escapeHtml(t.text)}</span>`).join('') || ''}
                     ${n.text ? `<span class="text">${escapeHtml(n.text)}</span>` : ''}
                 </div>
                 <div class="actions">
@@ -177,6 +257,25 @@ function renderList(kw = '') {
                 }
             });
         });
+
+        // 右键删除单个标签
+        list.querySelectorAll('.tag').forEach(tag => {
+            tag.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                const uid = tag.dataset.uid;
+                const text = tag.dataset.text;
+                const color = tag.dataset.color;
+                if (!uid || !confirm(`确定要删除 ${uid} 的标签「${text}」？`)) return;
+                loadNotes().then(notes => {
+                    const n = notes[uid];
+                    if (!n || !n.tags) return;
+                    n.tags = n.tags.filter(t => !(t.text === text && t.color === color));
+                    chrome.storage.local.set({ [STORAGE_KEY]: notes });
+                    renderList(kw);
+                    showToast('标签已删除');
+                });
+            });
+        });
     });
 }
 
@@ -216,13 +315,28 @@ document.getElementById('import').addEventListener('click', () => {
                     showToast('文件格式不正确');
                     return;
                 }
-                const items = Object.values(imported);
+                // 过滤原型污染键
+                const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+                const items = Object.entries(imported)
+                    .filter(([k]) => !DANGEROUS_KEYS.has(k))
+                    .map(([, v]) => v)
+                    .filter(v => v && typeof v === 'object' && v.uid);
                 if (items.length === 0) {
-                    showToast('文件中无备注数据');
+                    showToast('文件中无有效备注数据');
                     return;
                 }
-                // 显示预览
-                showImportPreview(items);
+                // 校验并清洗每条数据
+                const cleaned = items.map(n => ({
+                    uid: String(n.uid),
+                    name: typeof n.name === 'string' ? n.name : '',
+                    text: typeof n.text === 'string' ? n.text : '',
+                    tags: Array.isArray(n.tags) ? n.tags
+                        .filter(t => t && typeof t.text === 'string' && typeof t.color === 'string' && /^#[0-9a-fA-F]{3,8}$/.test(t.color))
+                        .map(t => ({ text: t.text, color: t.color.toLowerCase() }))
+                        : [],
+                    updatedAt: typeof n.updatedAt === 'number' ? n.updatedAt : Date.now(),
+                }));
+                showImportPreview(cleaned);
             } catch {
                 showToast('文件解析失败');
             }
@@ -305,3 +419,38 @@ document.addEventListener('keydown', (e) => {
 });
 
 renderList();
+
+// ==================== 标签筛选功能 ====================
+const tagExpandBtn = document.getElementById('tag-expand');
+const tagPanel = document.getElementById('tag-panel');
+
+tagExpandBtn.addEventListener('click', () => {
+    const isOpen = tagPanel.style.display !== 'none';
+    tagPanel.style.display = isOpen ? 'none' : 'block';
+    tagExpandBtn.classList.toggle('active', !isOpen);
+    if (!isOpen) {
+        renderTagFilter();
+    }
+});
+
+// 右键删除列表中的单个标签
+document.addEventListener('contextmenu', (e) => {
+    const tag = e.target.closest('.tag');
+    if (!tag) return;
+    e.preventDefault();
+    const item = tag.closest('.item');
+    if (!item) return;
+    const uid = item.dataset.uid;
+    const text = tag.textContent;
+    const color = tag.style.background || tag.style.backgroundColor;
+    if (!confirm(`确定要删除 ${uid} 的标签「${text}」？`)) return;
+    loadNotes().then(notes => {
+        const note = notes[uid];
+        if (!note || !note.tags) return;
+        note.tags = note.tags.filter(t => !(t.text === text && (t.color || '').toLowerCase() === color.toLowerCase()));
+        notes[uid] = note;
+        chrome.storage.local.set({ [STORAGE_KEY]: notes });
+        renderList(document.getElementById('search').value.toLowerCase());
+        showToast('标签已删除');
+    });
+});

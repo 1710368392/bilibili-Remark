@@ -1,10 +1,13 @@
 {
   "manifest_version": 3,
   "name": "Bilibili 用户备注助手",
-  "version": "1.2.0",
+  "version": "1.4.0",
   "description": "为 Bilibili 用户添加自定义备注，支持多标签和自定义配色",
   "author": "糖心月",
   "license": "MIT",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
   "permissions": [
     "storage"
   ],
@@ -37,5 +40,14 @@
     "16": "icons/icon.png",
     "48": "icons/icon.png",
     "128": "icons/icon.png"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+N",
+        "mac": "Mac+Shift+N"
+      },
+      "description": "打开备注管理面板"
+    }
   }
 }

@@ -48,6 +48,36 @@
         .footer-btn.danger:hover { border-color: #f45d5d; background: #fff1f0; }
         .tip { text-align: center; padding: 8px; font-size: 11px; color: #9499a0; background: #f8f9fa; }
 
+        /* 标签筛选 */
+        .tag-expand-btn {
+            width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+            border: 1.5px solid #e3e5e7; border-radius: 6px; background: #fff;
+            cursor: pointer; font-size: 12px; transition: all 0.2s; flex-shrink: 0; margin-left: 4px;
+        }
+        .tag-expand-btn:hover { border-color: #00a1d6; background: rgba(0,161,214,0.05); }
+        .tag-expand-btn.active { border-color: #00a1d6; background: rgba(0,161,214,0.1); }
+        .tag-filter-area {
+            display: flex; flex-wrap: wrap; gap: 5px; padding: 10px 16px;
+            background: #f8f9fa; border-bottom: 1px solid #f1f2f3;
+        }
+        .tag-filter-item {
+            display: inline-flex; align-items: center; gap: 3px;
+            padding: 2px 8px; height: 20px; border-radius: 10px;
+            font-size: 10px; color: #fff; font-weight: 500;
+            cursor: pointer; transition: all 0.15s; user-select: none; opacity: 0.5;
+        }
+        .tag-filter-item:hover { opacity: 0.8; transform: scale(1.05); }
+        .tag-filter-item.active { opacity: 1; box-shadow: 0 0 0 2px #00a1d6; }
+        .tag-filter-hint {
+            font-size: 10px; color: #9499a0; padding: 4px 16px 8px; text-align: center; background: #f8f9fa;
+        }
+        .filter-tag {
+            display: inline-flex; align-items: center; gap: 3px;
+            padding: 1px 6px; height: 16px; border-radius: 8px;
+            font-size: 10px; color: #fff; font-weight: 500; cursor: pointer;
+        }
+        .filter-tag:hover { filter: brightness(1.1); }
+
         /* Toast 动画 */
         @keyframes toast-in { from { transform: translateX(-50%) translateY(-10px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
 
@@ -110,6 +140,11 @@
             .preview-actions .confirm { background: #00a1d6; color: #fff; border-color: #00a1d6; }
             .template-btn { background: #2a2a2e; border-color: #444; color: #aaa; }
             .template-btn:hover { border-color: #00a1d6; color: #00a1d6; background: rgba(0,161,214,0.1); }
+            .tag-expand-btn { background: #2a2a2e; border-color: #444; color: #aaa; }
+            .tag-expand-btn:hover { border-color: #00a1d6; color: #00a1d6; }
+            .tag-expand-btn.active { border-color: #00a1d6; background: rgba(0,161,214,0.15); }
+            .tag-filter-area { background: #222226; border-bottom-color: #333; }
+            .tag-filter-hint { background: #222226; color: #777; }
         }
     </style>
 </head>
@@ -119,7 +154,12 @@
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
             <span id="title-text">Bilibili 用户备注助手</span>
             <span id="note-count" class="count"></span>
+            <button class="tag-expand-btn" id="tag-expand" title="标签筛选">🏷️</button>
         </div>
+    </div>
+    <div id="tag-panel" style="display:none;">
+        <div class="tag-filter-area" id="tag-filter"></div>
+        <div class="tag-filter-hint">点击标签筛选 · 右键标签全盘删除</div>
     </div>
     <div class="tip">按住 Shift + 右键用户名即可添加备注</div>
     <div class="body">
